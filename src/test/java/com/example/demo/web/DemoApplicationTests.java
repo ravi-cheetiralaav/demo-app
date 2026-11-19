@@ -48,6 +48,19 @@ class DemoApplicationTests {
     }
 
     @Test
+    void infrastructureDetailsComeAfterTheMissionContent() {
+        String body = rest.getForObject("/", String.class);
+
+        assertThat(body).contains("id=\"mission\"", "id=\"preflight\"", "id=\"flightpath\"", "id=\"infrastructure\"");
+        int infra = body.indexOf("id=\"infrastructure\"");
+        assertThat(body.indexOf("id=\"mission\"")).isLessThan(infra);
+        assertThat(body.indexOf("id=\"preflight\"")).isLessThan(infra);
+        assertThat(body.indexOf("id=\"flightpath\"")).isLessThan(infra);
+        assertThat(body.indexOf("id=\"clusterName\"")).isGreaterThan(infra);
+        assertThat(body.indexOf("id=\"podName\"")).isGreaterThan(infra);
+    }
+
+    @Test
     void homePageDoesNotExposeIpAddressesOrServiceAccount() {
         String body = rest.getForObject("/", String.class);
 
