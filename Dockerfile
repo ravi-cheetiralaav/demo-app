@@ -15,7 +15,7 @@ RUN mvn -B package -DskipTests=${SKIP_TESTS} \
 
 # ---- Runtime stage ----
 FROM eclipse-temurin:21-jre-alpine
-ARG APP_VERSION=1.0.0
+ARG APP_VERSION=1.1.0
 LABEL org.opencontainers.image.title="demo-app" \
       org.opencontainers.image.version="${APP_VERSION}"
 

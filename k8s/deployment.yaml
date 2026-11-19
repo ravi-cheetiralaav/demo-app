@@ -53,14 +53,14 @@ spec:
               app.kubernetes.io/name: demo-app
       containers:
         - name: demo-app
-          image: ravicmcchee/demo-app:1.0.0
+          image: ravicmcchee/demo-app:1.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
           env:
             - name: APP_VERSION
-              value: "1.0.0"
+              value: "1.1.0"
             - name: APP_MESSAGE
               value: "Java web app running on GDC ag Kubernetes"
             # Kubernetes does not expose the cluster name to pods; set it per cluster.
