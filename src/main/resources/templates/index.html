@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'demo-app v' + ${info.version}">demo-app</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 2rem; }
+        .card { max-width: 860px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+        h1 { margin-top: 0; color: #38bdf8; }
+        .version { display: inline-block; background: #0ea5e9; color: #0f172a; font-weight: 700; padding: .25rem .75rem; border-radius: 999px; }
+        .env { margin-left: .5rem; padding: .25rem .75rem; border-radius: 999px; font-weight: 600; }
+        .k8s { background: #22c55e; color: #0f172a; }
+        .local { background: #f59e0b; color: #0f172a; }
+        h2 { color: #94a3b8; font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; margin-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #334155; }
+        th { width: 35%; color: #94a3b8; font-weight: 500; }
+        td { font-family: ui-monospace, monospace; }
+        footer { margin-top: 2rem; font-size: .85rem; color: #64748b; }
+        a { color: #38bdf8; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1 id="message" th:text="${info.message}">Hello World!</h1>
+    <span class="version" id="version" th:text="'v' + ${info.version}">v0.0.0</span>
+    <span th:if="${info.runningInKubernetes}" class="env k8s" id="environment">Running in Kubernetes</span>
+    <span th:unless="${info.runningInKubernetes}" class="env local" id="environment">Running outside Kubernetes</span>
+
+    <h2>Pod</h2>
+    <table>
+        <tr><th>Pod name</th><td id="podName" th:text="${info.podName}"></td></tr>
+        <tr><th>Namespace</th><td id="podNamespace" th:text="${info.podNamespace}"></td></tr>
+        <tr><th>Pod IP</th><td id="podIp" th:text="${info.podIp}"></td></tr>
+        <tr><th>Pod UID</th><td id="podUid" th:text="${info.podUid}"></td></tr>
+        <tr><th>Service account</th><td id="serviceAccount" th:text="${info.serviceAccount}"></td></tr>
+        <tr><th>Hostname</th><td id="hostname" th:text="${info.hostname}"></td></tr>
+    </table>
+
+    <h2>Node</h2>
+    <table>
+        <tr><th>Node name</th><td id="nodeName" th:text="${info.nodeName}"></td></tr>
+        <tr><th>Node (host) IP</th><td id="hostIp" th:text="${info.hostIp}"></td></tr>
+    </table>
+
+    <h2>Resources</h2>
+    <table>
+        <tr><th>CPU request / limit</th><td th:text="${info.cpuRequest} + ' / ' + ${info.cpuLimit}"></td></tr>
+        <tr><th>Memory request / limit</th><td th:text="${info.memoryRequest} + ' / ' + ${info.memoryLimit}"></td></tr>
+        <tr><th>JVM processors / max heap</th><td th:text="${info.availableProcessors} + ' / ' + ${info.maxHeapMb} + ' MiB'"></td></tr>
+        <tr><th>Java version</th><td th:text="${info.javaVersion}"></td></tr>
+    </table>
+
+    <footer>
+        Started <span th:text="${info.startedAt}"></span> &middot;
+        Rendered <span th:text="${info.timestamp}"></span> &middot;
+        <a href="/api/info">JSON</a> &middot;
+        <a href="/actuator/health">Health</a>
+    </footer>
+</div>
+</body>
+</html>
