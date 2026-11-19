@@ -3,61 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="'demo-app v' + ${info.version}">demo-app</title>
+    <title th:text="${info.message} + ' · v' + ${info.version}">demo-app</title>
+    <!-- Self-contained: no external fonts, scripts or images, so it works in air-gapped clusters. -->
     <style>
-        body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 2rem; }
-        .card { max-width: 860px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
-        h1 { margin-top: 0; color: #38bdf8; }
-        .version { display: inline-block; background: #0ea5e9; color: #0f172a; font-weight: 700; padding: .25rem .75rem; border-radius: 999px; }
-        .env { margin-left: .5rem; padding: .25rem .75rem; border-radius: 999px; font-weight: 600; }
-        .k8s { background: #22c55e; color: #0f172a; }
-        .local { background: #f59e0b; color: #0f172a; }
-        h2 { color: #94a3b8; font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; margin-top: 2rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #334155; }
-        th { width: 35%; color: #94a3b8; font-weight: 500; }
-        td { font-family: ui-monospace, monospace; }
-        footer { margin-top: 2rem; font-size: .85rem; color: #64748b; }
-        a { color: #38bdf8; }
+        :root {
+            --bg: #070b1a;
+            --panel: rgba(255, 255, 255, .05);
+            --border: rgba(255, 255, 255, .10);
+            --text: #e6ebff;
+            --muted: #8b95b8;
+            --blue: #326ce5;
+            --cyan: #22d3ee;
+            --violet: #a78bfa;
+            --orange: #fb923c;
+            --green: #34d399;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; color: var(--text); background: var(--bg);
+            font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+        .blob { position: fixed; border-radius: 50%; filter: blur(110px); opacity: .45; z-index: 0; animation: float 18s ease-in-out infinite; }
+        .b1 { width: 520px; height: 520px; background: var(--blue); top: -160px; left: -120px; }
+        .b2 { width: 460px; height: 460px; background: var(--violet); bottom: -160px; right: -100px; animation-delay: -6s; }
+        .b3 { width: 340px; height: 340px; background: var(--orange); top: 40%; left: 55%; opacity: .18; animation-delay: -11s; }
+        @keyframes float { 50% { transform: translate(40px, 30px) scale(1.08); } }
+
+        main { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
+
+        .hero {
+            display: flex; align-items: center; gap: 1.75rem; padding: 2rem 2.25rem; border-radius: 24px;
+            background: linear-gradient(135deg, rgba(50,108,229,.28), rgba(167,139,250,.14));
+            border: 1px solid var(--border); backdrop-filter: blur(14px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+        }
+        .logos { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
+        .logo { width: 72px; height: 72px; border-radius: 20px; display: grid; place-items: center; background: rgba(255,255,255,.08); border: 1px solid var(--border); }
+        .logo svg { width: 44px; height: 44px; }
+        .plus { color: var(--muted); font-size: 1.4rem; }
+        .hero h1 {
+            margin: 0 0 .75rem; font-size: clamp(1.5rem, 3.4vw, 2.4rem); line-height: 1.15; font-weight: 800;
+            background: linear-gradient(90deg, #fff, var(--cyan) 55%, var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .chip { display: inline-flex; align-items: center; gap: .45rem; padding: .35rem .85rem; border-radius: 999px; font-size: .85rem; font-weight: 600; border: 1px solid var(--border); background: var(--panel); }
+        .chip.version { background: linear-gradient(90deg, var(--blue), #4f8bff); border-color: transparent; color: #fff; }
+        .chip.ok { color: var(--green); border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.1); }
+        .chip.warn { color: var(--orange); border-color: rgba(251,146,60,.4); background: rgba(251,146,60,.1); }
+        .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: pulse 2s infinite; }
+        @keyframes pulse { 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.1rem; margin-top: 1.4rem; }
+        .card {
+            padding: 1.35rem 1.5rem; border-radius: 20px; background: var(--panel); border: 1px solid var(--border);
+            backdrop-filter: blur(10px); transition: transform .2s, border-color .2s;
+        }
+        .card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.25); }
+        .card.wide { grid-column: 1 / -1; }
+        .card h2 { display: flex; align-items: center; gap: .6rem; margin: 0 0 1rem; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+        .card h2 i { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-style: normal; font-size: .95rem; background: var(--accent, var(--blue)); }
+        .kv { display: flex; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 1px solid var(--border); font-size: .92rem; }
+        .kv:first-of-type { border-top: 0; }
+        .kv span:first-child { color: var(--muted); white-space: nowrap; }
+        .kv span:last-child { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; text-align: right; word-break: break-all; }
+
+        .cluster { text-align: center; padding: 1.6rem 1rem; }
+        .cluster .label { color: var(--muted); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; }
+        .cluster .name {
+            margin-top: .4rem; font-size: clamp(1.4rem, 4vw, 2.3rem); font-weight: 800; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+            background: linear-gradient(90deg, var(--cyan), var(--green)); -webkit-background-clip: text; background-clip: text; color: transparent; word-break: break-all;
+        }
+
+        .meter { margin: .35rem 0 .9rem; }
+        .meter .row { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); margin-bottom: .35rem; }
+        .meter .row b { color: var(--text); font-family: ui-monospace, Consolas, monospace; font-weight: 600; }
+        .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+        .bar > div { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+
+        footer { margin-top: 1.6rem; display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; justify-content: space-between; color: var(--muted); font-size: .82rem; }
+        footer a { color: var(--cyan); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) { .hero { flex-direction: column; text-align: center; } .chips { justify-content: center; } }
+        @media (prefers-reduced-motion: reduce) { .blob, .dot { animation: none; } .card { transition: none; } }
     </style>
 </head>
 <body>
-<div class="card">
-    <h1 id="message" th:text="${info.message}">Hello World!</h1>
-    <span class="version" id="version" th:text="'v' + ${info.version}">v0.0.0</span>
-    <span th:if="${info.runningInKubernetes}" class="env k8s" id="environment">Running in Kubernetes</span>
-    <span th:unless="${info.runningInKubernetes}" class="env local" id="environment">Running outside Kubernetes</span>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<main>
+    <section class="hero">
+        <div class="logos" aria-hidden="true">
+            <div class="logo">
+                <!-- Coffee cup (Java) -->
+                <svg viewBox="0 0 48 48" fill="none" stroke="#fb923c" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 22h24v8a10 10 0 0 1-10 10h-4a10 10 0 0 1-10-10z"/>
+                    <path d="M34 25h3a4 4 0 0 1 0 8h-4"/>
+                    <path d="M16 8c-2 2 2 4 0 6M23 8c-2 2 2 4 0 6M30 8c-2 2 2 4 0 6" stroke="#fdba74"/>
+                </svg>
+            </div>
+            <span class="plus">+</span>
+            <div class="logo">
+                <!-- Ship's wheel (Kubernetes) -->
+                <svg viewBox="0 0 48 48" fill="none" stroke="#6ea0ff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="14"/>
+                    <circle cx="24" cy="24" r="4"/>
+                    <path d="M24 6v8M24 34v8M6 24h8M34 24h8M11.3 11.3l5.7 5.7M31 31l5.7 5.7M36.7 11.3L31 17M17 31l-5.7 5.7"/>
+                </svg>
+            </div>
+        </div>
+        <div>
+            <h1 id="message" th:text="${info.message}">Java web app running on GDC ag Kubernetes</h1>
+            <div class="chips">
+                <span class="chip version" id="version" th:text="'v' + ${info.version}">v0.0.0</span>
+                <span th:if="${info.runningInKubernetes}" class="chip ok" id="environment"><span class="dot"></span>Running in Kubernetes</span>
+                <span th:unless="${info.runningInKubernetes}" class="chip warn" id="environment"><span class="dot"></span>Running outside Kubernetes</span>
+                <span class="chip" th:text="'Java ' + ${info.javaVersion}">Java</span>
+            </div>
+        </div>
+    </section>
 
-    <h2>Pod</h2>
-    <table>
-        <tr><th>Pod name</th><td id="podName" th:text="${info.podName}"></td></tr>
-        <tr><th>Namespace</th><td id="podNamespace" th:text="${info.podNamespace}"></td></tr>
-        <tr><th>Pod IP</th><td id="podIp" th:text="${info.podIp}"></td></tr>
-        <tr><th>Pod UID</th><td id="podUid" th:text="${info.podUid}"></td></tr>
-        <tr><th>Service account</th><td id="serviceAccount" th:text="${info.serviceAccount}"></td></tr>
-        <tr><th>Hostname</th><td id="hostname" th:text="${info.hostname}"></td></tr>
-    </table>
+    <div class="grid">
+        <section class="card wide cluster" style="--accent:#22d3ee">
+            <div class="label">Cluster</div>
+            <div class="name" id="clusterName" th:text="${info.clusterName}">cluster</div>
+        </section>
 
-    <h2>Node</h2>
-    <table>
-        <tr><th>Node name</th><td id="nodeName" th:text="${info.nodeName}"></td></tr>
-        <tr><th>Node (host) IP</th><td id="hostIp" th:text="${info.hostIp}"></td></tr>
-    </table>
+        <section class="card" style="--accent:#326ce5">
+            <h2><i>⎈</i>Pod</h2>
+            <div class="kv"><span>Pod name</span><span id="podName" th:text="${info.podName}"></span></div>
+            <div class="kv"><span>Namespace</span><span id="podNamespace" th:text="${info.podNamespace}"></span></div>
+            <div class="kv"><span>Hostname</span><span id="hostname" th:text="${info.hostname}"></span></div>
+            <div class="kv"><span>Pod UID</span><span id="podUid" th:text="${info.podUid}"></span></div>
+        </section>
 
-    <h2>Resources</h2>
-    <table>
-        <tr><th>CPU request / limit</th><td th:text="${info.cpuRequest} + ' / ' + ${info.cpuLimit}"></td></tr>
-        <tr><th>Memory request / limit</th><td th:text="${info.memoryRequest} + ' / ' + ${info.memoryLimit}"></td></tr>
-        <tr><th>JVM processors / max heap</th><td th:text="${info.availableProcessors} + ' / ' + ${info.maxHeapMb} + ' MiB'"></td></tr>
-        <tr><th>Java version</th><td th:text="${info.javaVersion}"></td></tr>
-    </table>
+        <section class="card" style="--accent:#a78bfa">
+            <h2><i>▣</i>Node</h2>
+            <div class="kv"><span>Running on node</span><span id="nodeName" th:text="${info.nodeName}"></span></div>
+            <div class="kv"><span>Uptime</span><span id="uptime" th:attr="data-started=${info.startedAt}">–</span></div>
+            <div class="kv"><span>Started</span><span th:text="${info.startedAt}"></span></div>
+        </section>
+
+        <section class="card wide" style="--accent:#fb923c">
+            <h2><i>⚙</i>Resources</h2>
+            <div class="grid" style="margin-top:0">
+                <div class="meter">
+                    <div class="row"><span>CPU request → limit</span>
+                        <b th:text="${info.cpuRequest == 'n/a' ? 'n/a' : info.cpuRequest + 'm'} + ' → ' + ${info.cpuLimit == 'n/a' ? 'n/a' : info.cpuLimit + 'm'}"></b></div>
+                    <div class="bar"><div th:style="'width:' + ${info.cpuRequestPercent()} + '%'"></div></div>
+                </div>
+                <div class="meter">
+                    <div class="row"><span>Memory request → limit</span>
+                        <b th:text="${info.memoryRequest == 'n/a' ? 'n/a' : info.memoryRequest + ' MiB'} + ' → ' + ${info.memoryLimit == 'n/a' ? 'n/a' : info.memoryLimit + ' MiB'}"></b></div>
+                    <div class="bar"><div th:style="'width:' + ${info.memoryRequestPercent()} + '%'"></div></div>
+                </div>
+            </div>
+            <div class="kv"><span>JVM processors</span><span th:text="${info.availableProcessors}"></span></div>
+            <div class="kv"><span>JVM max heap</span><span th:text="${info.maxHeapMb} + ' MiB'"></span></div>
+        </section>
+    </div>
 
     <footer>
-        Started <span th:text="${info.startedAt}"></span> &middot;
-        Rendered <span th:text="${info.timestamp}"></span> &middot;
-        <a href="/api/info">JSON</a> &middot;
-        <a href="/actuator/health">Health</a>
+        <span>Rendered <span th:text="${info.timestamp}"></span> · refresh to hit another pod</span>
+        <span><a href="/api/info">JSON</a> · <a href="/actuator/health">Health</a></span>
     </footer>
-</div>
+</main>
+<script>
+    (function () {
+        var el = document.getElementById('uptime');
+        var start = Date.parse(el.getAttribute('data-started'));
+        if (isNaN(start)) { return; }
+        function tick() {
+            var s = Math.max(0, Math.floor((Date.now() - start) / 1000));
+            var d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+            el.textContent = (d ? d + 'd ' : '') + (h || d ? h + 'h ' : '') + m + 'm ' + (s % 60) + 's';
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>
 </body>
 </html>

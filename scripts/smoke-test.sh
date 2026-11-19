@@ -3,7 +3,7 @@
 # Usage: scripts/smoke-test.sh [namespace] [expected-version]
 set -euo pipefail
 
-NAMESPACE="${1:-demo}"
+NAMESPACE="${1:-demo-app}"
 EXPECTED_VERSION="${2:-}"
 LOCAL_PORT="${LOCAL_PORT:-18080}"
 FAILURES=0
@@ -33,7 +33,7 @@ curl -fs "${BASE}/actuator/health/liveness" | grep -q '"status":"UP"' && pass "l
 curl -fs "${BASE}/actuator/health/readiness" | grep -q '"status":"UP"' && pass "readiness probe UP" || fail "readiness probe"
 
 HTML="$(curl -fs "${BASE}/" || true)"
-grep -q "Hello World" <<<"${HTML}" && pass "home page shows Hello World" || fail "home page Hello World"
+grep -q "Java web app running on" <<<"${HTML}" && pass "home page shows the app message" || fail "home page message"
 grep -q "Running in Kubernetes" <<<"${HTML}" && pass "home page detects Kubernetes" || fail "Kubernetes detection"
 
 INFO="$(curl -fs "${BASE}/api/info" || true)"

@@ -22,22 +22,22 @@ class RuntimeInfoServiceTest {
                 .withProperty("HOSTNAME", "demo-app-abc")
                 .withProperty("POD_NAME", "demo-app-abc")
                 .withProperty("POD_NAMESPACE", "demo")
-                .withProperty("POD_IP", "10.244.1.7")
+                .withProperty("CLUSTER_NAME", "gdc-ag-cluster-1")
                 .withProperty("NODE_NAME", "aks-nodepool1-0")
-                .withProperty("HOST_IP", "10.224.0.4")
-                .withProperty("CPU_LIMIT", "1");
+                .withProperty("CPU_REQUEST", "100")
+                .withProperty("CPU_LIMIT", "400");
 
         RuntimeInfo info = new RuntimeInfoService(env, clock).current();
 
         assertThat(info.version()).isEqualTo("2.3.4");
         assertThat(info.message()).isEqualTo("Hi");
         assertThat(info.runningInKubernetes()).isTrue();
+        assertThat(info.clusterName()).isEqualTo("gdc-ag-cluster-1");
         assertThat(info.podName()).isEqualTo("demo-app-abc");
         assertThat(info.podNamespace()).isEqualTo("demo");
-        assertThat(info.podIp()).isEqualTo("10.244.1.7");
         assertThat(info.nodeName()).isEqualTo("aks-nodepool1-0");
-        assertThat(info.hostIp()).isEqualTo("10.224.0.4");
-        assertThat(info.cpuLimit()).isEqualTo("1");
+        assertThat(info.cpuLimit()).isEqualTo("400");
+        assertThat(info.cpuRequestPercent()).isEqualTo(25);
         assertThat(info.timestamp()).isEqualTo(clock.instant());
     }
 
@@ -50,7 +50,9 @@ class RuntimeInfoServiceTest {
         assertThat(info.runningInKubernetes()).isFalse();
         assertThat(info.podName()).isEqualTo(RuntimeInfoService.UNKNOWN);
         assertThat(info.nodeName()).isEqualTo(RuntimeInfoService.UNKNOWN);
+        assertThat(info.clusterName()).isEqualTo(RuntimeInfoService.UNKNOWN);
         assertThat(info.version()).isEqualTo(RuntimeInfoService.UNKNOWN);
+        assertThat(info.memoryRequestPercent()).isZero();
         assertThat(info.hostname()).isNotBlank();
     }
 }

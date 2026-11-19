@@ -1,10 +1,10 @@
 # demo-app
 
-A Spring Boot (Java 21) sample app for Kubernetes. The web page shows a Hello World message, the app version, and details about the pod and node it runs on.
+A Spring Boot (Java 21) sample app for Kubernetes. The web page shows the headline "Java web app running on GDC ag Kubernetes", the app version, the cluster name, and details about the pod and node it runs on.
 
 ## Features
 
-* `/` is an HTML page with the message, version, pod name, namespace, pod IP, pod UID, service account, node name, node IP, CPU/memory requests and limits, and JVM details.
+* `/` is an HTML page with the message, version, cluster name, pod name, namespace, pod UID, node name, CPU/memory requests and limits, and JVM details. It is fully self-contained (inline CSS/SVG/JS, no CDN), so it works in air-gapped clusters. IP addresses and the service account are deliberately not shown.
 * `/api/info` returns the same data as JSON.
 * `/actuator/health/liveness` and `/actuator/health/readiness` serve the Kubernetes probes.
 
@@ -12,10 +12,11 @@ Pod and node details come from the [Kubernetes Downward API](https://kubernetes.
 
 ## Configuration
 
-| Env var       | Default                        | Purpose                     |
-|---------------|--------------------------------|-----------------------------|
-| `APP_VERSION` | Maven `project.version`        | Version shown on the page   |
-| `APP_MESSAGE` | `Hello World from Kubernetes!` | Greeting shown on the page  |
+| Env var        | Default                                    | Purpose                                                              |
+|----------------|--------------------------------------------|----------------------------------------------------------------------|
+| `APP_VERSION`  | Maven `project.version`                    | Version shown on the page                                            |
+| `APP_MESSAGE`  | `Java web app running on GDC ag Kubernetes` | Headline shown on the page                                           |
+| `CLUSTER_NAME` | `n/a`                                      | Cluster name shown on the page (Kubernetes doesn't expose it to pods) |
 
 ## Build and test locally
 
@@ -41,14 +42,14 @@ The image uses a multi-stage build (tests run during the build), a layered Sprin
 
 ## Deploy to Kubernetes
 
-1. Push the image to a registry the cluster can pull from, then update `image:` in [k8s/deployment.yaml](k8s/deployment.yaml).
+1. The deployment pulls `ravicmcchee/demo-app:1.0.0` from Docker Hub. To publish your own build, tag and push it, then update `image:` in [k8s/deployment.yaml](k8s/deployment.yaml).
 
    ```bash
-   docker tag demo-app:1.0.0 <registry>/demo-app:1.0.0
-   docker push <registry>/demo-app:1.0.0
+   docker tag demo-app:1.0.0 ravicmcchee/demo-app:1.0.0
+   docker push ravicmcchee/demo-app:1.0.0
    ```
 
-   For local clusters, load the image directly with `kind load docker-image demo-app:1.0.0` or `minikube image load demo-app:1.0.0`.
+   For local clusters, you can instead load a local image with `kind load docker-image demo-app:1.0.0` or `minikube image load demo-app:1.0.0` and set `image:` to `demo-app:1.0.0`.
 
 2. Apply the manifests:
 
@@ -59,16 +60,16 @@ The image uses a multi-stage build (tests run during the build), a layered Sprin
 3. Run the smoke test:
 
    ```bash
-   ./scripts/smoke-test.sh demo 1.0.0          # bash
-   ./scripts/smoke-test.ps1 -Namespace demo -ExpectedVersion 1.0.0   # PowerShell 7
+   ./scripts/smoke-test.sh demo-app 1.0.0          # bash
+   ./scripts/smoke-test.ps1 -Namespace demo-app -ExpectedVersion 1.0.0   # PowerShell 7
    ```
 
-   The smoke test waits for the rollout to finish, port-forwards the service, and checks that the probes respond. It confirms the page shows Hello World and detects Kubernetes, the version matches, and the reported pod name, node name, and namespace match real cluster objects.
+   The smoke test waits for the rollout to finish, port-forwards the service, and checks that the probes respond. It confirms the page shows the app message and detects Kubernetes, the version matches, and the reported pod name, node name, and namespace match real cluster objects.
 
 4. Open the page:
 
    ```bash
-   kubectl -n demo port-forward svc/demo-app 8080:80
+   kubectl -n demo-app port-forward svc/demo-app 8080:80
    ```
 
    Then browse to <http://localhost:8080>. Refresh a few times: the service load-balances across the 3 replicas, so the pod name (and often the node) changes.

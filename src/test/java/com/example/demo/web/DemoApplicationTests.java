@@ -22,6 +22,7 @@ import com.example.demo.info.RuntimeInfo;
                 "KUBERNETES_SERVICE_HOST=10.0.0.1",
                 "POD_NAME=demo-app-7d9f-xyz",
                 "POD_NAMESPACE=demo",
+                "CLUSTER_NAME=gdc-ag-cluster-1",
                 "POD_IP=10.244.0.12",
                 "NODE_NAME=worker-node-1",
                 "HOST_IP=192.168.1.10",
@@ -33,18 +34,27 @@ class DemoApplicationTests {
     private TestRestTemplate rest;
 
     @Test
-    void homePageShowsHelloWorldVersionAndPodDetails() {
+    void homePageShowsMessageVersionClusterAndPodDetails() {
         ResponseEntity<String> response = rest.getForEntity("/", String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody())
-                .contains("Hello World")
+                .contains("Java web app running on GDC ag Kubernetes")
                 .contains("v9.9.9-test")
                 .contains("Running in Kubernetes")
+                .contains("gdc-ag-cluster-1")
                 .contains("demo-app-7d9f-xyz")
-                .contains("worker-node-1")
-                .contains("10.244.0.12")
-                .contains("192.168.1.10");
+                .contains("worker-node-1");
+    }
+
+    @Test
+    void homePageDoesNotExposeIpAddressesOrServiceAccount() {
+        String body = rest.getForObject("/", String.class);
+
+        assertThat(body)
+                .doesNotContain("10.244.0.12")
+                .doesNotContain("192.168.1.10")
+                .doesNotContainIgnoringCase("service account");
     }
 
     @Test
@@ -55,6 +65,7 @@ class DemoApplicationTests {
         RuntimeInfo info = response.getBody();
         assertThat(info).isNotNull();
         assertThat(info.version()).isEqualTo("9.9.9-test");
+        assertThat(info.clusterName()).isEqualTo("gdc-ag-cluster-1");
         assertThat(info.podNamespace()).isEqualTo("demo");
         assertThat(info.nodeName()).isEqualTo("worker-node-1");
     }

@@ -3,11 +3,11 @@
 .SYNOPSIS
     Post-deployment smoke test for demo-app running in Kubernetes.
 .EXAMPLE
-    ./scripts/smoke-test.ps1 -Namespace demo -ExpectedVersion 1.0.0
+    ./scripts/smoke-test.ps1 -Namespace demo-app -ExpectedVersion 1.0.0
 #>
 [CmdletBinding()]
 param(
-    [string]$Namespace = 'demo',
+    [string]$Namespace = 'demo-app',
     [string]$ExpectedVersion = '',
     [int]$LocalPort = 18080
 )
@@ -43,7 +43,7 @@ try {
     Test-Check 'readiness probe UP' ((Invoke-RestMethod "$base/actuator/health/readiness").status -eq 'UP')
 
     $html = (Invoke-WebRequest "$base/").Content
-    Test-Check 'home page shows Hello World' ($html -match 'Hello World')
+    Test-Check 'home page shows the app message' ($html -match 'Java web app running on')
     Test-Check 'home page detects Kubernetes' ($html -match 'Running in Kubernetes')
 
     $info = Invoke-RestMethod "$base/api/info"
