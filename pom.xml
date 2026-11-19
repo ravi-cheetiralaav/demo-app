@@ -13,7 +13,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>demo-app</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>demo-app</name>
     <description>Hello World app that displays its version and Kubernetes pod information</description>
 

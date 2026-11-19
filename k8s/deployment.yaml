@@ -17,7 +17,7 @@ metadata:
   namespace: demo-app
   labels:
     app.kubernetes.io/name: demo-app
-    app.kubernetes.io/version: "1.1.0"
+    app.kubernetes.io/version: "1.1.1"
 spec:
   replicas: 3
   revisionHistoryLimit: 5
@@ -33,7 +33,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: demo-app
-        app.kubernetes.io/version: "1.1.0"
+        app.kubernetes.io/version: "1.1.1"
     spec:
       serviceAccountName: demo-app
       automountServiceAccountToken: false
@@ -53,14 +53,14 @@ spec:
               app.kubernetes.io/name: demo-app
       containers:
         - name: demo-app
-          image: ravicmcchee/demo-app:1.1.0
+          image: ravicmcchee/demo-app:1.1.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
           env:
             - name: APP_VERSION
-              value: "1.1.0"
+              value: "1.1.1"
             - name: APP_MESSAGE
               value: "Java web app running on GDC ag Kubernetes"
             # Kubernetes does not expose the cluster name to pods; set it per cluster.

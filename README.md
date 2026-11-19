@@ -34,22 +34,22 @@ Automated tests:
 ## Docker
 
 ```bash
-docker build -t demo-app:1.1.0 --build-arg APP_VERSION=1.1.0 .
-docker run --rm -p 8080:8080 demo-app:1.1.0
+docker build -t demo-app:1.1.1 --build-arg APP_VERSION=1.1.1 .
+docker run --rm -p 8080:8080 demo-app:1.1.1
 ```
 
 The image uses a multi-stage build (tests run during the build), a layered Spring Boot jar, a JRE-only Alpine base, and a non-root user (UID 10001).
 
 ## Deploy to Kubernetes
 
-1. The deployment pulls `ravicmcchee/demo-app:1.1.0` from Docker Hub. To publish your own build, tag and push it, then update `image:` in [k8s/deployment.yaml](k8s/deployment.yaml).
+1. The deployment pulls `ravicmcchee/demo-app:1.1.1` from Docker Hub. To publish your own build, tag and push it, then update `image:` in [k8s/deployment.yaml](k8s/deployment.yaml).
 
    ```bash
-   docker tag demo-app:1.1.0 ravicmcchee/demo-app:1.1.0
-   docker push ravicmcchee/demo-app:1.1.0
+   docker tag demo-app:1.1.1 ravicmcchee/demo-app:1.1.1
+   docker push ravicmcchee/demo-app:1.1.1
    ```
 
-   For local clusters, you can instead load a local image with `kind load docker-image demo-app:1.1.0` or `minikube image load demo-app:1.1.0` and set `image:` to `demo-app:1.1.0`.
+   For local clusters, you can instead load a local image with `kind load docker-image demo-app:1.1.1` or `minikube image load demo-app:1.1.1` and set `image:` to `demo-app:1.1.1`.
 
 2. Apply the manifests:
 
@@ -60,8 +60,8 @@ The image uses a multi-stage build (tests run during the build), a layered Sprin
 3. Run the smoke test:
 
    ```bash
-   ./scripts/smoke-test.sh demo-app 1.1.0          # bash
-   ./scripts/smoke-test.ps1 -Namespace demo-app -ExpectedVersion 1.1.0   # PowerShell 7
+   ./scripts/smoke-test.sh demo-app 1.1.1          # bash
+   ./scripts/smoke-test.ps1 -Namespace demo-app -ExpectedVersion 1.1.1   # PowerShell 7
    ```
 
    The smoke test waits for the rollout to finish, port-forwards the service, and checks that the probes respond. It confirms the page shows the app message and detects Kubernetes, the version matches, and the reported pod name, node name, and namespace match real cluster objects.
