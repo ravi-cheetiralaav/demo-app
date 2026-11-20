@@ -3,7 +3,7 @@
 .SYNOPSIS
     Post-deployment smoke test for demo-app running in Kubernetes.
 .EXAMPLE
-    ./scripts/smoke-test.ps1 -Namespace demo-app -ExpectedVersion 1.1.2
+    ./scripts/smoke-test.ps1 -Namespace demo-app -ExpectedVersion 1.1.3
 #>
 [CmdletBinding()]
 param(

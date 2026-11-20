@@ -34,7 +34,7 @@ class DemoApplicationTests {
     private TestRestTemplate rest;
 
     @Test
-    void homePageShowsMessageVersionClusterAndPodDetails() {
+    void homePageShowsMessageVersionAndCluster() {
         ResponseEntity<String> response = rest.getForEntity("/", String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -42,9 +42,7 @@ class DemoApplicationTests {
                 .contains("Java web app running on GDC ag Kubernetes")
                 .contains("v9.9.9-test")
                 .contains("Running in Kubernetes")
-                .contains("gdc-ag-cluster-1")
-                .contains("demo-app-7d9f-xyz")
-                .contains("worker-node-1");
+                .contains("gdc-ag-cluster-1");
     }
 
     @Test
@@ -57,7 +55,6 @@ class DemoApplicationTests {
         assertThat(body.indexOf("id=\"preflight\"")).isLessThan(infra);
         assertThat(body.indexOf("id=\"flightpath\"")).isLessThan(infra);
         assertThat(body.indexOf("id=\"clusterName\"")).isGreaterThan(infra);
-        assertThat(body.indexOf("id=\"podName\"")).isGreaterThan(infra);
     }
 
     @Test

@@ -303,22 +303,6 @@
                 <div class="label">Cluster</div>
                 <div class="name" id="clusterName" th:text="${info.clusterName}">cluster</div>
             </section>
-
-            <section class="card" style="--accent:#4285f4">
-                <h2><i>⎈</i>Pod</h2>
-                <div class="kv"><span>Pod name</span><span id="podName" th:text="${info.podName}"></span></div>
-                <div class="kv"><span>Namespace</span><span id="podNamespace" th:text="${info.podNamespace}"></span></div>
-                <div class="kv"><span>Hostname</span><span id="hostname" th:text="${info.hostname}"></span></div>
-                <div class="kv"><span>Pod UID</span><span id="podUid" th:text="${info.podUid}"></span></div>
-            </section>
-
-            <section class="card" style="--accent:#34a853">
-                <h2><i>▣</i>Node</h2>
-                <div class="kv"><span>Running on node</span><span id="nodeName" th:text="${info.nodeName}"></span></div>
-                <div class="kv"><span>Uptime</span><span id="uptime" th:attr="data-started=${info.startedAt}">–</span></div>
-                <div class="kv"><span>Started</span><span th:text="${info.startedAt}"></span></div>
-            </section>
-
             <section class="card wide" style="--accent:#fbbc04">
                 <h2><i>⚙</i>Resources</h2>
                 <div class="grid">

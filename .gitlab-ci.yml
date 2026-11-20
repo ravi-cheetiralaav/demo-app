@@ -1,0 +1,24 @@
+stages:
+  - build
+  - test
+  - sast-secret-scan
+  - package
+  - publish
+  - docker-build
+  - container-security
+  - docker-push
+  - provenance
+  - release-bundle
+  - verification
+
+include:
+  - project: 'avn-rc-group/cicd-templates'
+    ref: 'main'
+    file: 'gitlab-platform-templates/workflows/applications/java-maven-service.yml'
+  - project: 'avn-rc-group/cicd-templates'
+    ref: 'main'
+    file: 'gitlab-platform-templates/workflows/applications/docker-service.yml'
+
+provenance:
+  needs:
+    - job: docker-push
